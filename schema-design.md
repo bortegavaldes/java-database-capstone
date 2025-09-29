@@ -13,21 +13,21 @@
 - lastname: VARCHAR(30)
 - speciality: VARCHAR(30)
 - email: VARCHAR(30)
-- password: VARCHAR(30)
+- password: VARCHAR(255)
 
 ### Table: patients
 - id: INT, Primary Key, Auto Increment
 - firstname: VARCHAR(30)
 - lastname: VARCHAR(30)
 - email: VARCHAR(30)
-- password: VARCHAR(30)
+- password: VARCHAR(255)
 
 ### Table: admin
 - id: INT, Primary Key, Auto Increment
 - firstname: VARCHAR(30)
 - lastname: VARCHAR(30)
 - email: VARCHAR(30)
-- password: VARCHAR(30)
+- password: VARCHAR(255)
 
 
 ## MongoDB Collection Design
