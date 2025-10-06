@@ -1,4 +1,53 @@
 <!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CMS</title>
+    <link rel="icon" href="../assets/images/logo/logo.png" />
+
+    <link rel="stylesheet" href="../assets/css/index.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <script src="../js/util.js" defer></script>
+    <script src="../js/render.js" defer></script>
+    <script src="../js/components/header.js" defer></script>
+    <script src="../js/components/footer.js" defer></script>
+</head>
+
+<body>
+    <main>
+        <div class="container">
+            <div class="wrapper">
+                <div id="header"></div>
+                <!-- I have a task of a course that is creating an html page, in the task there is a step that I am unsure how to define the nested order of tags. Can you explain this step, and show me an example of code of how to create this structure
+                -->
+                <section class="main-content">
+                    <h2>Select Your Role</h2>
+
+                    <button id="btnAdmin" onclick="selectRole('admin')">Admin</button>
+                    <button id="btnDoctor" onclick="selectRole('doctor')">Doctor</button>
+                    <button id="btnPatient" onclick="selectRole('patient')">Patient</button>
+                </section>
+                <div id="footer"></div>
+            </div>
+        </div>
+    </main>
+    <div id="modal" class="modal">
+        <span id="closeModal" class="close">&times;</span>
+        <div id="modal-body"></div>
+    </div>
+    <script type="module" src="../js/services/index.js" defer></script>
+    <script>
+        function selectRole(role) {
+            console.log("Selected role:", role);
+        }
+    </script>
+</body>
+
+</html>
+
 <!-- 
 
 Step-by-Step Explanation of `index.html`.

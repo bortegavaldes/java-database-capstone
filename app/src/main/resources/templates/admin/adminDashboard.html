@@ -1,5 +1,69 @@
 <!-- adminDashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" th:href="@{/assets/css/adminDashboard.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+
+    <script th:src="@{/js/render.js}" defer></script>
+    <script th:src="@{/js/util.js}" defer></script>
+    <script th:src="@{/js/components/header.js}" defer></script>
+    <script th:src="@{/js/components/footer.js}" defer></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="wrapper">
+            <div id="header"></div>
+            <main class="main-content">
+                <input type="text" id="searchBar" placeholder="search by doctor name" />
+                <section class="filter-section">
+                    <h2>Filter & Sort Options</h2>
+
+                    <div class="filter-group">
+                        <label for="sort-time">Sort by Time:</label>
+                        <select id="sort-time" name="sort-time">
+                            <option value="" disabled selected>Select an option</option>
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="duration-short">Shortest Duration</option>
+                            <option value="duration-long">Longest Duration</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filter-specialty">Filter by Specialty:</label>
+                        <select id="filter-specialty" name="filter-specialty">
+                            <option value="" disabled selected>Select a specialty</option>
+                            <option value="cardiology">Cardiology</option>
+                            <option value="neurology">Neurology</option>
+                            <option value="dermatology">Dermatology</option>
+                            <option value="pediatrics">Pediatrics</option>
+                            <option value="oncology">Oncology</option>
+                            <option value="orthopedics">Orthopedics</option>
+                            <option value="general">General Practice</option>
+                        </select>
+                    </div>
+
+                </section>
+                <div id="content"></div>
+            </main>
+            <div id="footer"></div>
+        </div>
+    </div>
+    <div id="modal" class="modal">
+        <span id="closeModal" class="close">&times;</span>
+        <div id="modal-body"></div>
+    </div>
+    <script type="module" src="../js/adminDashboard.js" defer></script>
+    <script type="module" src="../js/components/doctorCard.js" defer></script>
+</body>
+
+</html>
 <!-- 
 Step-by-Step Explanation of `adminDashboard.html`
 This file creates the Admin Dashboard interface for managing doctor-related data 
@@ -106,4 +170,3 @@ with search, filter, and modal functionality.
     * Finish the structure by properly closing all tags.
 
  -->
-

@@ -1,3 +1,60 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+h2 {
+  font-size: 48px;
+  margin-bottom: 50px;
+  color: #003e3e;
+  font-weight: bold;
+  font-family: 'Alegreya', 'Roboto', sans-serif;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 40px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-image: url("../assets/images/defineRole/index.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+button {
+  background-color: #015c5d;
+  color: white;
+  padding: 10px 20px;
+  width: 200px;
+  margin-top: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 12px;
+}
+
+button:hover {
+  background-color: #A62B1F;
+  font-weight: bold;
+}
+
+.dashboard-btn:hover{
+  background-color: #003e3e;
+}
+
 /* this is the style sheet file for index.htlm  */
 
 /* 

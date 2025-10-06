@@ -1,5 +1,75 @@
 <!-- doctorDashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard</title>
+    <link rel="stylesheet" th:href="@{/assets/css/adminDashboard.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/doctorDashboard.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+
+    <script th:src="@{/js/render.js}" defer></script>
+    <script th:src="@{/js/util.js}" defer></script>
+    <script th:src="@{/js/components/header.js}" defer></script>
+    <script th:src="@{/js/components/footer.js}" defer></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="wrapper">
+            <div id="header">
+            </div>
+            <main class="main-content">
+                <input type="text" id="searchBar" class="searchBar" placeholder="Search Bar for custom output" />
+                <section class="appointment-dashboard">
+                    <h2>Appointments & Patient Data</h2>
+
+                    <div class="filter-controls">
+                        <label for="datePicker">Select Date:</label>
+                        <input type="date" id="datePicker" name="appointment-date">
+
+                        <button id="todayButton" type="button">View Today's Appointments</button>
+                    </div>
+
+                    <hr>
+
+                    <div class="patient-data-container">
+                        <h3>Patient List</h3>
+                        <table id="patientTable">
+                            <thead>
+                                <tr>
+                                    <th>Patient ID</th>
+                                    <th>Name</th>
+                                    <th>Phone No.</th>
+                                    <th>Email</th>
+                                    <th>Prescription</th>
+                                </tr>
+                            </thead>
+                            <tbody id="patientTableBody">
+                                <tr>
+                                    <td>P1001</td>
+                                    <td>Alice Johnson</td>
+                                    <td>(555) 123-4567</td>
+                                    <td>alice@example.com</td>
+                                    <td>High Blood Pressure Medication</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </main>
+            <div id="footer"></div>
+        </div>
+    </div>
+    <script type="module" src="../js/services/patientServices.js" defer></script>
+    <script type="module" src="../js/components/patientRows.js" defer></script>
+    <script type="module" src="../js/doctorDashboard.js" defer></script>
+</body>
+
+</html>
 <!-- 
 Step-by-Step Explanation of `doctorDashboard.html`
 This file defines the Doctor Dashboard interface, allowing doctors to view and manage their patient appointments, search records, and access patient prescriptions.

@@ -1,4 +1,127 @@
 /* This is the style sheet for the doctorDashboard.html */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: Arial, sans-serif;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.table-header{
+  font-size: 24px;
+  color: #015c5d;
+  margin-bottom: 30px;
+  margin-right: 0;
+}
+
+table{
+  width: 100%;
+  font-family: sans-serif;
+  margin-top: 20px;
+  border-collapse: collapse; 
+}
+
+thead{
+  background-color: #33333325;
+  color: #fff;
+}
+
+td, th{
+  padding: 12px 16px;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+tr:nth-child(odd) {
+    background-color: #ffffffc0; 
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f959; 
+}
+
+tr:hover {
+    background-color: #015c5d39; 
+    cursor: pointer;
+}
+
+.prescription-btn {
+    /* --- Base Requirements --- */
+    width: 30px;
+    height: 30px;
+    
+    /* Ensure sizing works, especially if it's a <span> or <i> */
+    display: inline-flex; 
+    
+    /* Center icon/text inside the button */
+    align-items: center; 
+    justify-content: center;
+
+    /* Make it interactive */
+    cursor: pointer; 
+    
+    /* --- Visual & Performance Setup --- */
+    border: none;
+    padding: 0;
+    
+    /* Define smooth transition for all changed properties (transform and filter) */
+    transition: transform 0.2s ease-out, filter 0.2s ease-out;
+    
+    /* Set the initial state for the filter */
+    filter: brightness(1);
+}
+
+/* --- Hover State (Enlarge & Brighten) --- */
+.prescription-btn:hover {
+    /* Slightly enlarge the button */
+    transform: scale(1.1); 
+    
+    /* Brighten the button appearance */
+    filter: brightness(1.25); 
+}
+
+/* --- Click/Active State (Shrink) --- */
+.prescription-btn:active {
+    /* Slightly shrink the button to mimic a press action */
+    transform: scale(0.95); 
+    
+    /* Reduce the brightness slightly for a pressed look */
+    filter: brightness(0.9);
+    
+    /* Use a very fast transition for instant press feedback */
+    transition: transform 0.05s ease; 
+}
+
+.noPatientRecord{
+  font-size: 16px;
+  font-style: italic;
+  color: grey;
+}
+
+.today-btn{
+  padding: 10px;
+  margin-right: 10px;
+  background-color: #015c5d;
+}
+
+.date-picker{
+  margin-left: 10px;
+  margin-top: 13px;
+  border-radius: 8px;
+  padding: 10px;
+  height: 30px;
+}
+
 /* 
 **Table Header (`.table-header`)**
 
