@@ -1,30 +1,66 @@
 package com.project.back_end.mvc;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import com.project.back_end.services.MainService;
+
+@Controller
 public class DashboardController {
 
-// 1. Set Up the MVC Controller Class:
-//    - Annotate the class with `@Controller` to indicate that it serves as an MVC controller returning view names (not JSON).
-//    - This class handles routing to admin and doctor dashboard pages based on token validation.
+    @Autowired
+    private final MainService tokenService; // Rename 'Service' for better clarity if needed
 
+    public DashboardController(MainService tokenService) {
+        this.tokenService = tokenService;
+    }
 
-// 2. Autowire the Shared Service:
-//    - Inject the common `Service` class, which provides the token validation logic used to authorize access to dashboards.
+    /**
+     * Handles requests to the Admin Dashboard, validating the provided token.
+     *
+     * @param token The security token provided as a path variable.
+     * @return The path to the Thymeleaf template if valid, or a redirect to the login page otherwise.
+     */
+    // Define the adminDashboard method:
+    @GetMapping("/adminDashboard/{token}")
+    public String adminDashboard(@PathVariable String token) {
+        // Call validateToken, which returns a ResponseEntity<String>
+        ResponseEntity<String> validationResponse = tokenService.validateToken(token, "admin");
 
+        // FIX: Check if the returned HTTP status is OK (200) for a valid token.
+        if (validationResponse.getStatusCode() == HttpStatus.OK) {
+            // Token is valid → return the admin dashboard view.
+            return "admin/adminDashboard";
+        }
 
-// 3. Define the `adminDashboard` Method:
-//    - Handles HTTP GET requests to `/adminDashboard/{token}`.
-//    - Accepts an admin's token as a path variable.
-//    - Validates the token using the shared service for the `"admin"` role.
-//    - If the token is valid (i.e., no errors returned), forwards the user to the `"admin/adminDashboard"` view.
-//    - If invalid, redirects to the root URL, likely the login or home page.
+        // Token is invalid/expired → redirect to the root URL (login/home page).
+        return "redirect:/";
+    }
 
+    /**
+     * Handles requests to the Doctor Dashboard, validating the provided token.
+     *
+     * @param token The security token provided as a path variable.
+     * @return The path to the Thymeleaf template if valid, or a redirect to the login page otherwise.
+     */
+    // Define the doctorDashboard method:
+    @GetMapping("/doctorDashboard/{token}")
+    public String doctorDashboard(@PathVariable String token) {
+        // Call validateToken, which returns a ResponseEntity<String>
+        ResponseEntity<String> validationResponse = tokenService.validateToken(token, "doctor");
 
-// 4. Define the `doctorDashboard` Method:
-//    - Handles HTTP GET requests to `/doctorDashboard/{token}`.
-//    - Accepts a doctor's token as a path variable.
-//    - Validates the token using the shared service for the `"doctor"` role.
-//    - If the token is valid, forwards the user to the `"doctor/doctorDashboard"` view.
-//    - If the token is invalid, redirects to the root URL.
+        // FIX: Check if the returned HTTP status is OK (200) for a valid token.
+        if (validationResponse.getStatusCode() == HttpStatus.OK) {
+            // Token is valid → return the doctor dashboard view.
+            return "doctor/doctorDashboard";
+        }
 
+        // Token is invalid/expired → redirect to the root URL (login/home page).
+        return "redirect:/";
+    }
 
 }

@@ -1,6 +1,164 @@
 package com.project.back_end.services;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.project.back_end.DTO.AppointmentDTO;
+import com.project.back_end.models.Appointment;
+import com.project.back_end.models.Patient;
+import com.project.back_end.repo.AppointmentRepository;
+import com.project.back_end.repo.PatientRepository;
+
+@Service
 public class PatientService {
+    private final AppointmentRepository appointmentRepository;
+    private final TokenService tokenService;
+    private final PatientRepository patientRepository;
+    public PatientService(AppointmentRepository appointmentRepository, TokenService tokenService,
+            PatientRepository patientRepository) {
+        this.appointmentRepository = appointmentRepository;
+        this.tokenService = tokenService;
+        this.patientRepository = patientRepository;
+    }
+
+    // createPatient
+    public int createPatient(Patient patient) {
+        try {
+            patientRepository.save(patient);
+            return 1;
+        } catch (Exception e) {
+            System.err.println("Error creating patient: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    // getPatientAppointment
+    @Transactional(readOnly = true)
+    public List<AppointmentDTO> getPatientAppointment(Long patientId) {
+        try {
+            List<Appointment> appointments = appointmentRepository.findByPatientId(patientId);
+            return appointments.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            System.err.println("Error retrieving appointments: " + e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    // filterByCondition
+    public List<AppointmentDTO> filterByCondition(Long patientId, String condition) {
+        try {
+            int status;
+            if ("future".equalsIgnoreCase(condition)) {
+                status = 0;
+            } else if ("past".equalsIgnoreCase(condition)) {
+                status = 1;
+            } else {
+                throw new IllegalArgumentException("Invalid condition: " + condition);
+            }
+
+            List<Appointment> appointments = appointmentRepository
+                    .findByPatient_IdAndStatusOrderByAppointmentTimeAsc(patientId, status);
+
+            return appointments.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+
+        } catch (IllegalArgumentException e) {
+            System.err.println("Error filtering appointments by condition: " + e.getMessage());
+            return Collections.emptyList();
+        } catch (Exception e) {
+            System.err.println("Error filtering appointments by condition: " + e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    // filterByDoctor
+    public List<AppointmentDTO> filterByDoctor(String doctorName, Long patientId) {
+        try {
+            List<Appointment> appointments = appointmentRepository
+                    .filterByDoctorNameAndPatientId(doctorName, patientId);
+
+            return appointments.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            System.err.println("Error filtering appointments by doctor: " + e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    // filterByDoctorAndCondition
+    public List<AppointmentDTO> filterByDoctorAndCondition(String doctorName, Long patientId, String condition) {
+        try {
+            int status;
+            if ("future".equalsIgnoreCase(condition)) {
+                status = 0;
+            } else if ("past".equalsIgnoreCase(condition)) {
+                status = 1;
+            } else {
+                throw new IllegalArgumentException("Invalid condition: " + condition);
+            }
+
+            List<Appointment> appointments = appointmentRepository
+                    .filterByDoctorNameAndPatientIdAndStatus(doctorName, patientId, status);
+
+            return appointments.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+
+        } catch (IllegalArgumentException e) {
+            System.err.println("Error filtering appointments by doctor and condition: " + e.getMessage());
+            return Collections.emptyList();
+        } catch (Exception e) {
+            System.err.println("Error filtering appointments by doctor and condition: " + e.getMessage());
+            return Collections.emptyList();
+        }
+
+    }
+
+    // getPatientDetails
+    public Patient getPatientDetails(String token) {
+        try {
+            String email = tokenService.extractEmail(token);
+            Patient patient = patientRepository.findByEmail(email);
+            if (patient == null)
+                throw new RuntimeException("Patient not found for email: " + email);
+            else
+                return patient;
+        } catch (RuntimeException e) {
+            System.err.println("Error retrieving patient details: " + e.getMessage());
+            return null;
+        } catch (Exception e) {
+            System.err.println("Error retrieving patient details: " + e.getMessage());
+            return null;
+        }
+    }
+
+    // Use of DTOs
+    private AppointmentDTO convertToDTO(Appointment appointment) {
+    AppointmentDTO dto = new AppointmentDTO(
+        appointment.getId(),
+        appointment.getDoctor().getId(),
+        appointment.getDoctor().getName(),
+        appointment.getPatient().getId(),
+        appointment.getPatient().getName(),
+        appointment.getPatient().getEmail(),
+        appointment.getPatient().getPhone(),
+        appointment.getPatient().getAddress(),
+        appointment.getAppointmentTime(),
+        appointment.getStatus()
+    );
+    return dto;
+}
+}
+
 // 1. **Add @Service Annotation**:
 //    - The `@Service` annotation is used to mark this class as a Spring service component. 
 //    - It will be managed by Spring's container and used for business logic related to patients and appointments.
@@ -53,6 +211,3 @@ public class PatientService {
 //    - The service uses `AppointmentDTO` to transfer appointment-related data between layers. This ensures that sensitive or unnecessary data (e.g., password or private patient information) is not exposed in the response.
 //    - Instruction: Ensure that DTOs are used appropriately to limit the exposure of internal data and only send the relevant fields to the client.
 
-
-
-}

@@ -1,6 +1,7 @@
 import { API_BASE_URL } from "../config/config.js";
 
 const DOCTOR_API = API_BASE_URL + '/doctor';
+const DOCTOR_FILTER = API_BASE_URL + '/doctor/filter';
 
 /**
  * Fetches the list of all doctors from the DOCTOR_API endpoint.
@@ -10,7 +11,7 @@ const DOCTOR_API = API_BASE_URL + '/doctor';
 export async function getDoctors() {
     try {
         // 1. Use fetch() to send a GET request to the DOCTOR_API endpoint
-        const response = await fetch(DOCTOR_API);
+        const response = await fetch(DOCTOR_FILTER);
 
         // Check if the request was successful (status code 200-299)
         if (!response.ok) {
@@ -172,7 +173,7 @@ export async function filterDoctors(name, time, specialty) {
     }
 
     const queryString = params.toString();
-    const fullEndpoint = queryString ? `${DOCTOR_API}?${queryString}` : DOCTOR_API;
+    const fullEndpoint = queryString ? `${DOCTOR_FILTER}?${queryString}` : DOCTOR_FILTER;
 
     console.log(`Attempting to GET filtered doctors from: ${fullEndpoint}`);
     // 
@@ -210,6 +211,19 @@ export async function filterDoctors(name, time, specialty) {
         // 'Could not connect to the service. Please check your internet connection.'
         return [];
     }
+}
+
+// For getting doctor data (name ,id , etc ). Used in booking appointments
+export async function getDoctorData(token) {
+  try {
+    const response = await fetch(`${DOCTOR_API}/${token}`);
+    const data = await response.json();
+    if (response.ok) return data.doctor;
+    return null;
+  } catch (error) {
+    console.error("Error fetching doctor details:", error);
+    return null;
+  }
 }
 
 /*

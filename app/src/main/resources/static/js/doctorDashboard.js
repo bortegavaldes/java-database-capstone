@@ -1,10 +1,10 @@
-import { getAllAppointments } from "../services/appointmentRecordService.js";
-import { createPatientRow } from "../components/patientRows.js";
+import { getAllAppointments } from "../js/services/appointmentRecordService.js";
+import { createPatientRow } from "../js/components/patientRows.js";
 
 const patientTable = document.getElementById("patientTableBody");
-const selectedDate = new Date();
+let selectedDate = new Date();
 const token = localStorage.getItem("token");
-let patientName = null;
+let patientName = '0';
 
 // Reference to the search bar
 const searchBar = document.querySelector('#searchBar');
@@ -33,7 +33,7 @@ todayButton.addEventListener('click', () => {
   console.log("Today's button clicked. Resetting date.");
 
   // a. Resets the selectedDate to today.
-  selectedDate = new Date();
+  selectedDate =  new Date();
 
   // b. Updates the date picker field to reflect today’s date.
   datePicker.value = formatDateForInput(selectedDate);
@@ -66,7 +66,8 @@ async function loadAppointments() {
 
   try {
     // Use getAllAppointments(selectedDate, patientName, token) to fetch appointment data.
-    const appointments = await getAllAppointments(selectedDate, patientName, token);
+    const formatSelDate = getDateString(selectedDate);
+    const appointments = await getAllAppointments(formatSelDate, patientName, token);
 
     // Clear the loading indicator
     patientTable.innerHTML = '';
@@ -126,6 +127,27 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error("loadAppointments() function is not defined. Cannot load default appointments.");
   }
 });
+
+
+/**
+ * Creates a string representing today's date in 'YYYY-MM-DD' format.
+ * @returns {string} The formatted date string.
+ */
+function getDateString(date) {
+
+    // Get the full year (YYYY)
+    const year = date.getFullYear();
+
+    // Get the month (0-11). Add 1 for 1-12, then pad with a leading zero if needed.
+    // .padStart(2, '0') ensures two digits (e.g., '01', '12').
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+
+    // Get the day of the month (1-31) and pad with a leading zero if needed.
+    const day = String(date.getDate()).padStart(2, '0');
+
+    // Combine into the required format
+    return `${year}-${month}-${day}`;
+}
 
 /*
   Import getAllAppointments to fetch appointments from the backend

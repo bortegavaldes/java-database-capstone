@@ -1,6 +1,6 @@
-import { openModal } from "../components/modal.js";
-import { getDoctors, filterDoctors, saveDoctor } from "../services/doctorServices.js";
-import { createDoctorCard } from "../components/doctorCard.js";
+import { openModal } from "../js/components/modals.js";
+import { getDoctors, filterDoctors, saveDoctor } from "../js/services/doctorServices.js";
+import { createDoctorCard } from "../js/components/doctorCard.js";
 
 document.getElementById('addDocBtn').addEventListener('click', () => {
   openModal('addDoctor');
@@ -10,7 +10,7 @@ document.getElementById('addDocBtn').addEventListener('click', () => {
  * Fetches all doctors, clears the content, and displays the results as cards.
  */
 async function loadDoctorCards() {
-  log("Executing loadDoctorCards...");
+  console.log("Executing loadDoctorCards...");
   const contentDiv = document.getElementById("content");
 
   // 1. Clear existing content and show loading state
@@ -34,8 +34,8 @@ async function loadDoctorCards() {
 document.addEventListener('DOMContentLoaded', loadDoctorCards);
 
 document.getElementById("searchBar").addEventListener("input", filterDoctorsOnChange);
-document.getElementById("filterTime").addEventListener("change", filterDoctorsOnChange);
-document.getElementById("filterSpecialty").addEventListener("change", filterDoctorsOnChange);
+document.getElementById("sort-time").addEventListener("change", filterDoctorsOnChange);
+document.getElementById("filter-specialty").addEventListener("change", filterDoctorsOnChange);
 
 /**
          * Renders the fetched doctor cards to the DOM, handling loading and empty states.
@@ -58,7 +58,8 @@ function renderDoctorCards(doctors) {
 
   // Inject the cards
   doctors.forEach(doctor => {
-    contentDiv.innerHTML += createDoctorCard(doctor);
+    const card = createDoctorCard(doctor);
+    contentDiv.appendChild(card);
   });
 }
 
@@ -71,8 +72,8 @@ async function filterDoctorsOnChange() {
 
   // 1. Gather current filter/search values
   const name = document.getElementById('filterName').value.trim();
-  const specialty = document.getElementById('filterSpecialty').value.trim();
-  const time = document.getElementById('filterTime').value.trim();
+  const specialty = document.getElementById('filter-specialty').value.trim();
+  const time = document.getElementById('sort-time').value.trim();
 
   // Show temporary loading state
   contentDiv.innerHTML = `

@@ -6,8 +6,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/logo/logo.png" />
     <link rel="stylesheet" th:href="@{/assets/css/adminDashboard.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/doctorDashboard.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/patientDashboard.css}">
     <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+ 
 
     <script th:src="@{/js/render.js}" defer></script>
     <script th:src="@{/js/util.js}" defer></script>
@@ -20,10 +24,9 @@
         <div class="wrapper">
             <div id="header"></div>
             <main class="main-content">
-                <input type="text" id="searchBar" placeholder="search by doctor name" />
                 <section class="filter-section">
                     <h2>Filter & Sort Options</h2>
-
+                    <input type="text" id="searchBar" placeholder="search by doctor name" />
                     <div class="filter-group">
                         <label for="sort-time">Sort by Time:</label>
                         <select id="sort-time" name="sort-time">
@@ -56,8 +59,10 @@
         </div>
     </div>
     <div id="modal" class="modal">
-        <span id="closeModal" class="close">&times;</span>
-        <div id="modal-body"></div>
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <div id="modal-body"></div>
+        </div>
     </div>
     <script type="module" src="../js/adminDashboard.js" defer></script>
     <script type="module" src="../js/components/doctorCard.js" defer></script>
