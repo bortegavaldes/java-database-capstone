@@ -73,7 +73,27 @@ export async function getPatientAppointments(id, token, user) {
 
 export async function filterAppointments(condition, name, token) {
   try {
-    const response = await fetch(`${PATIENT_API}/appointments/filter/${condition}/${name}/${token}`, {
+    // 1. Definir la base de la URL
+    const baseUrl = `${PATIENT_API}/appointments/filter`;
+
+    // 2. Usar URLSearchParams para construir la cadena de consulta
+    const url = new URL(baseUrl);
+
+    // 3. Incluir parámetros solo si tienen un valor
+    if (condition !== null && condition !== undefined) {
+      url.searchParams.append('condition', condition);
+    }
+
+    if (name !== null && name !== undefined) {
+      url.searchParams.append('doctorName', name);
+    }
+
+    // 4. El token siempre debe incluirse, ya que no tiene required = false
+    url.searchParams.append('token', token);
+
+    const finalUrl = url.toString(); 
+
+    const response = await fetch( finalUrl, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
