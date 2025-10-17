@@ -35,17 +35,6 @@
   color: #333;
 }
 
-.footer-column a {
-  text-decoration: none;
-  color: #0a0a23;
-  font-size: 14px;
-}
-
-.footer-column a:hover {
-  color: #003e3e;
-  transition: color 0.3s ease;
-}
-
 /* Nav links styling */
 nav a {
   margin-left: 20px;
@@ -55,8 +44,19 @@ nav a {
   font-weight: bold;
 }
 
+.footer-column a {
+  text-decoration: none;
+  color: #0a0a23;
+  font-size: 14px;
+}
+
 nav a:hover {
   color: #003e3e;
+}
+
+.footer-column a:hover {
+  color: #003e3e;
+  transition: color 0.3s ease;
 }
 
 /* Responsive behavior */
