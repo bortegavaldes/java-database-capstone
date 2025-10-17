@@ -22,7 +22,7 @@ jobs:
         run: htmlhint app/src/main/resources/static/pages//*.html || true
 
       - name: Lint CSS
-        run: stylelint "app/src/main/resources/static/assets/css//*.css" || true
+        run: stylelint app/src/main/resources/static/assets/css//*.css || true
 
       - name: Lint JS
         run: eslint app/src/main/resources/static/js//*.js || true
