@@ -33,7 +33,7 @@ async function loadDoctorCards() {
 
 document.addEventListener('DOMContentLoaded', loadDoctorCards);
 
-document.getElementById("searchBar").addEventListener("input", filterDoctorsOnChange);
+document.getElementById("search-bar").addEventListener("input", filterDoctorsOnChange);
 document.getElementById("sort-time").addEventListener("change", filterDoctorsOnChange);
 document.getElementById("filter-specialty").addEventListener("change", filterDoctorsOnChange);
 

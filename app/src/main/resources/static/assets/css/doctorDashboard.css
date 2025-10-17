@@ -102,7 +102,7 @@ tr:hover {
     transition: transform 0.05s ease; 
 }
 
-.noPatientRecord{
+.no-patient-record{
   font-size: 16px;
   font-style: italic;
   color: grey;
@@ -166,7 +166,7 @@ tr:hover {
   * Brighten appearance
 * On click: slightly shrink (`scale(0.95)`).
 
-**No Record Message (`.noPatientRecord`)**
+**No Record Message (`.no-patient-record`)**
 
 * Use a `16px` italic grey font to indicate no data gently.
 

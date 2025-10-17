@@ -43,14 +43,14 @@ function loadDoctorCards() {
     });
 }
 // Filter Input
-document.getElementById("searchBar").addEventListener("input", filterDoctorsOnChange);
+document.getElementById("search-bar").addEventListener("input", filterDoctorsOnChange);
 document.getElementById("filterTime").addEventListener("change", filterDoctorsOnChange);
 document.getElementById("filterSpecialty").addEventListener("change", filterDoctorsOnChange);
 
 
 
 function filterDoctorsOnChange() {
-  const searchBar = document.getElementById("searchBar").value.trim();
+  const searchBar = document.getElementById("search-bar").value.trim();
   const filterTime = document.getElementById("filterTime").value;
   const filterSpecialty = document.getElementById("filterSpecialty").value;
 

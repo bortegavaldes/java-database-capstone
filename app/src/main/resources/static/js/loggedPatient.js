@@ -39,7 +39,7 @@ export function showBookingOverlay(e, doctor, patient) {
   setTimeout(() => ripple.classList.add("active"), 50);
 
   const modalApp = document.createElement("div");
-  modalApp.classList.add("modalApp");
+  modalApp.classList.add("modal-app");
 
   modalApp.innerHTML = `
     <h2>Book Appointment</h2>
@@ -94,7 +94,7 @@ document.getElementById("filterSpecialty").addEventListener("change", filterDoct
 
 
 function filterDoctorsOnChange() {
-  const searchBar = document.getElementById("searchBar").value.trim();
+  const searchBar = document.getElementById("search-bar").value.trim();
   const filterTime = document.getElementById("filterTime").value;
   const filterSpecialty = document.getElementById("filterSpecialty").value;
 

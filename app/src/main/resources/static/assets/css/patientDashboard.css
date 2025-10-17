@@ -25,7 +25,7 @@
   opacity: 1;
 }
 
-.modalApp {
+.modal-app {
   position: fixed;
   bottom: -100%;
   left: 50%;
@@ -35,20 +35,20 @@
   padding: 20px;
   z-index: 10000;
   transition: bottom 1.5s ease-in;
-  box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 -5px 10px rgb(0 0 0 / 30%);
   border-radius: 10px 10px 0 0;
   text-align: center;
 }
 
-.modalApp.active {
+.modal-app.active {
   bottom: 0;
 }
 
-.modalApp h2 {
+.modal-app h2 {
   margin-top: 20px;
 }
 
-.modalApp input {
+.modal-app input {
   display: block;
   margin: 10px auto;
   padding: 10px;
@@ -56,7 +56,7 @@
   margin-bottom: 40px;
 }
 
-.modalApp select {
+.modal-app select {
   display: block;
   margin: 10px auto;
   padding: 10px;

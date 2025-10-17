@@ -7,7 +7,7 @@ const token = localStorage.getItem("token");
 let patientName = '0';
 
 // Reference to the search bar
-const searchBar = document.querySelector('#searchBar');
+const searchBar = document.querySelector('#search-bar');
 
 // Add input event listener
 searchBar.addEventListener('input', (event) => {

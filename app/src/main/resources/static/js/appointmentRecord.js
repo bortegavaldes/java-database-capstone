@@ -9,7 +9,7 @@ async function loadAppointments(filter = "upcoming") {
   const appointments = await getAppointmentRecord();
 
   if (!appointments || appointments.length === 0) {
-    tableBody.innerHTML = `<tr><td class="noPatientRecord" colspan='5'>No appointments found.</td></tr>`;
+    tableBody.innerHTML = `<tr><td class="no-patient-record" colspan='5'>No appointments found.</td></tr>`;
     return;
   }
 
@@ -23,7 +23,7 @@ async function loadAppointments(filter = "upcoming") {
   }
 
   if (filteredAppointments.length === 0) {
-    tableBody.innerHTML = `<tr><td class="noPatientRecord" colspan='5'>No ${filter} appointments found.</td></tr>`;
+    tableBody.innerHTML = `<tr><td class="no-patient-record" colspan='5'>No ${filter} appointments found.</td></tr>`;
     return;
   }
 
