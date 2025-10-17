@@ -14,9 +14,19 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install linters
+      - name: Install linters and configuration
         run: |
+          # Install the main linters globally
           npm install -g htmlhint stylelint eslint
+          
+          # Install the specific configuration Stylelint needs globally
+          # This resolves the "ConfigurationError: No configuration provided"
+          npm install -g stylelint-config-standard
+
+      - name: Create Stylelint Configuration File
+        # Use an inline shell command to create the necessary config file
+        run: |
+          echo '{"extends": ["stylelint-config-standard"]}' > .stylelintrc.json
 
       - name: Lint HTML
         run: htmlhint app/src/main/resources/static/pages//*.html || true
