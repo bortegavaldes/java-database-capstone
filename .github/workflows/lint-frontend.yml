@@ -25,7 +25,6 @@ jobs:
           # Install the standard ruleset for ESLint (v9+) globally
           npm install -g @eslint/js
 
-          # CRITICAL FIX: Install the 'globals' package globally
           # This resolves the "Cannot find module 'globals'" error.
           npm install -g globals
 
