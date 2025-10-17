@@ -27,7 +27,7 @@ export function openModal(type) {
         <input type="password" id="doctorPassword" placeholder="Password" class="input-field">
         <input type="text" id="doctorPhone" placeholder="Mobile No." class="input-field">
         <div class="availability-container">
-        <label class="availabilityLabel">Select Availability:</label>
+        <label class="availability-label">Select Availability:</label>
           <div class="checkbox-group">
               <label><input type="checkbox" name="availability" value="09:00-10:00"> 9:00 AM - 10:00 AM</label>
               <label><input type="checkbox" name="availability" value="10:00-11:00"> 10:00 AM - 11:00 AM</label>

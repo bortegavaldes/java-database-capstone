@@ -51,7 +51,7 @@ textarea:focus {
   filter: brightness(1.5);
 }
 
-#patientName {
+#patient-name {
   background-color: #bdbcbc80;
 }
 

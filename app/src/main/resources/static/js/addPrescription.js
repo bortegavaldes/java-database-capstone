@@ -2,7 +2,7 @@ import { savePrescription, getPrescription } from "./services/prescriptionServic
 
 document.addEventListener('DOMContentLoaded', async () => {
   const savePrescriptionBtn = document.getElementById("savePrescription");
-  const patientNameInput = document.getElementById("patientName");
+  const patientNameInput = document.getElementById("patient-name");
   const medicinesInput = document.getElementById("medicines");
   const dosageInput = document.getElementById("dosage");
   const notesInput = document.getElementById("notes");

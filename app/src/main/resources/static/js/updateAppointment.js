@@ -33,7 +33,7 @@ async function initializePage() {
       }
 
       // Fill the form with the appointment data passed in the URL
-      document.getElementById("patientName").value = patientName || "You";
+      document.getElementById("patient-name").value = patientName || "You";
       document.getElementById("doctorName").value = doctorName;
       document.getElementById("appointmentDate").value = appointmentDate;
       document.getElementById("appointmentTime").value = appointmentTime;

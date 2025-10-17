@@ -35,6 +35,17 @@
   color: #333;
 }
 
+.footer-column a {
+  text-decoration: none;
+  color: #0a0a23;
+  font-size: 14px;
+}
+
+.footer-column a:hover {
+  color: #003e3e;
+  transition: color 0.3s ease;
+}
+
 /* Nav links styling */
 nav a {
   margin-left: 20px;
@@ -49,7 +60,7 @@ nav a:hover {
 }
 
 /* Responsive behavior */
-@media (max-width: 600px) {
+@media (width <= 600px) {
   .header {
     flex-direction: column;
     align-items: flex-start;
@@ -73,11 +84,11 @@ nav a:hover {
   }
 }
 
-.doctorHeader {
+.doctor-header {
   margin-right: 30px
 }
 
-.doctorHeader:hover {
+.doctor-header:hover {
   color: #A62B1F;
 }
 
@@ -138,19 +149,8 @@ nav a:hover {
   color: #0a0a23;
 }
 
-.footer-column a {
-  text-decoration: none;
-  color: #0a0a23;
-  font-size: 14px;
-}
-
-.footer-column a:hover {
-  color: #003e3e;
-  transition: color 0.3s ease;
-}
-
 /* Mobile Responsiveness */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .footer-container {
     flex-direction: column;
     align-items: flex-start;
@@ -214,6 +214,7 @@ nav a:hover {
   margin-bottom: 20px;
   width: 100%;
   appearance: none;
+
   /* Remove default OS styles */
   background-color: #fff;
   color: #333;
@@ -302,7 +303,7 @@ nav a:hover {
   border-color: #015c5d;
 }
 
-#roleSelector {
+#role-selector {
   width: auto;
   border-radius: 10px;
 }
@@ -353,7 +354,7 @@ span {
   outline: none;
 }
 
-.availabilityLabel {
+.availability-label {
   margin-bottom: 8px;
 }
 

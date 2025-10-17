@@ -32,7 +32,7 @@ jobs:
           
           # 2. Create ESLint Config (required for v9+)
           # This config tells ESLint to use the standard recommended rules.
-          echo "import globals from 'globals';
+          echo "const globals require('globals');
             module.exports = [
             {
                 files: ['**/*.js'],
