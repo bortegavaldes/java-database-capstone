@@ -186,7 +186,7 @@ export async function filterDoctors(name, time, specialty) {
                 'Content-Type': 'application/json'
             }
         });
-
+        
         if (!response.ok) {
             // Handle server errors (e.g., 500) or bad request errors (e.g., 400)
             const errorData = await response.json().catch(() => ({}));
@@ -200,7 +200,7 @@ export async function filterDoctors(name, time, specialty) {
 
         // Assuming the response body contains an object with a 'doctors' array
         const data = await response.json();
-        
+        console.log(data.doctors);
         // Return the filtered list, defaulting to an empty array if 'doctors' is missing
         return data.doctors || []; 
 

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -250,9 +251,11 @@ public class DoctorController {
         
         // Calls the filterDoctor method in the general Service class (as seen in Service.java)
         List<Doctor> filteredDoctors = service.filterDoctor(name, specialty, time); 
+        System.out.println(filteredDoctors.size());
+        List<DoctorDTO> filtDocDTO = filteredDoctors.stream().map(doc -> new DoctorDTO(doc.getId(), doc.getName(),doc.getEmail())).collect(Collectors.toList());
 
         Map<String, Object> response = new HashMap<>();
-        response.put("doctors", filteredDoctors);
+        response.put("doctors", filtDocDTO);
         
         return ResponseEntity.ok(response);
     }

@@ -87,16 +87,16 @@ export function showBookingOverlay(e, doctor, patient) {
 
 
 // Filter Input
-document.getElementById("searchBar").addEventListener("input", filterDoctorsOnChange);
-document.getElementById("filterTime").addEventListener("change", filterDoctorsOnChange);
-document.getElementById("filterSpecialty").addEventListener("change", filterDoctorsOnChange);
+document.getElementById("search-bar").addEventListener("input", filterDoctorsOnChange);
+document.getElementById("filter-time").addEventListener("change", filterDoctorsOnChange);
+document.getElementById("filter-specialty").addEventListener("change", filterDoctorsOnChange);
 
 
 
 function filterDoctorsOnChange() {
   const searchBar = document.getElementById("search-bar").value.trim();
-  const filterTime = document.getElementById("filterTime").value;
-  const filterSpecialty = document.getElementById("filterSpecialty").value;
+  const filterTime = document.getElementById("filter-time").value;
+  const filterSpecialty = document.getElementById("filter-specialty").value;
 
 
   const name = searchBar.length > 0 ? searchBar : null;
@@ -105,7 +105,7 @@ function filterDoctorsOnChange() {
 
   filterDoctors(name, time, specialty)
     .then(response => {
-      const doctors = response.doctors;
+      const doctors = response;
       const contentDiv = document.getElementById("content");
       contentDiv.innerHTML = "";
 
