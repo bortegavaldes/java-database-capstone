@@ -5,12 +5,12 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +36,235 @@ public class DoctorService {
 
     public List<String> getDoctorAvailability(Long doctorId, LocalDate date) {
         Optional<Doctor> doctorOpt = doctorRepository.findById(doctorId);
+        if (doctorOpt.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Doctor doctor = doctorOpt.get();
+        List<String> availableSlots = doctor.getAvailableTimes();
+        if (availableSlots == null || availableSlots.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 1. Fetch all booked appointments and create a Set of booked hours
+        List<Appointment> bookedAppointments = appointmentRepository
+                .findByDoctorIdAndAppointmentTimeBetween(doctorId, date.atStartOfDay(), date.atTime(LocalTime.MAX));
+
+        Set<LocalTime> bookedHours = bookedAppointments.stream()
+                .map(Appointment::getAppointmentTime)
+                .map(LocalDateTime::toLocalTime)
+                // Truncate to the hour (assuming one-hour appointment slots)
+                .map(time -> time.truncatedTo(ChronoUnit.HOURS))
+                .collect(Collectors.toSet());
+
+        // 2. Streamline iteration: Generate all possible one-hour slots from availableSlots
+        List<LocalTime> allPossibleSlots = availableSlots.stream()
+                .flatMap(slot -> {
+                    String[] parts = slot.split("-");
+                    if (parts.length != 2) {
+                        return Stream.empty(); // Skip invalid format
+                    }
+                    try {
+                        LocalTime start = LocalTime.parse(parts[0].trim());
+                        LocalTime end = LocalTime.parse(parts[1].trim());
+
+                        // Generate a sequential stream of times starting from 'start',
+                        // advancing by 1 hour, until 'end' (exclusive, as the loop condition implies)
+                        return Stream.iterate(start, current -> current.plusHours(1))
+                                .limit(ChronoUnit.HOURS.between(start, end));
+                    } catch (DateTimeParseException ignored) {
+                        return Stream.empty(); // Skip unparsable slots
+                    }
+                })
+                // Convert to a List of LocalTime objects
+                .collect(Collectors.toList());
+
+        // 3. Filter the generated slots against bookedHours in a single pass
+        List<String> available = allPossibleSlots.stream()
+                .filter(slotTime -> !bookedHours.contains(slotTime))
+                .map(LocalTime::toString)
+                .collect(Collectors.toList());
+
+        return available;
+    }
+
+    // 5. saveDoctor
+    public int saveDoctor(Doctor doctor) {
+        try {
+            if (doctorRepository.findByEmail(doctor.getEmail()) == null) {
+                return -1;
+            }
+            doctorRepository.save(doctor);
+            return 1;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    // 6. updateDoctor
+    public int updateDoctor(Long doctorId, Doctor updatedDoctor) {
+        Optional<Doctor> existingOpt = doctorRepository.findById(doctorId);
+        if (existingOpt.isEmpty()) {
+            return -1;
+        }
+
+        Doctor existing = existingOpt.get();
+        existing.setName(updatedDoctor.getName());
+        existing.setEmail(updatedDoctor.getEmail());
+        existing.setPassword(updatedDoctor.getPassword());
+        existing.setSpecialty(updatedDoctor.getSpecialty());
+        existing.setAvailableTimes(updatedDoctor.getAvailableTimes());
+
+        doctorRepository.save(existing);
+        return 1;
+    }
+
+    // 7. getDoctors
+    @Transactional(readOnly = true)
+    public List<Doctor> getDoctors() {
+        List<Doctor> doctors = doctorRepository.findAll();
+        doctors.forEach(d -> d.getAvailableTimes().size()); // Force eager loading
+        return doctors;
+    }
+
+    // 8. deleteDoctor
+    @Transactional
+    public int deleteDoctor(Long doctorId) {
+        Optional<Doctor> doctorOpt = doctorRepository.findById(doctorId);
+        if (doctorOpt.isEmpty()) {
+            return -1;
+        }
+
+        appointmentRepository.deleteAllByDoctorId(doctorId);
+        doctorRepository.deleteById(doctorId);
+        return 1;
+    }
+
+    // 9. validateDoctor
+    public String validateDoctor(String email, String password) {
+        Optional<Doctor> doctorOpt = Optional.of(doctorRepository.findByEmail(email));
+        if (doctorOpt.isEmpty()) {
+            return "Doctor not found.";
+        }
+
+        Doctor doctor = doctorOpt.get();
+        if (!doctor.getPassword().equals(password)) {
+            return "Invalid password.";
+        }
+
+        return tokenService.generateToken(doctor.getId(), doctor.getEmail());
+    }
+
+    // 10. findDoctorByName
+    @Transactional(readOnly = true)
+    public List<Doctor> findDoctorByName(String name) {
+        List<Doctor> doctors = doctorRepository.findByNameLike(name);
+        doctors.forEach(d -> d.getAvailableTimes().size());
+        return doctors;
+    }
+
+    // 11. filterDoctorsByNameSpecilityandTime
+    public List<Doctor> filterDoctorsByNameSpecilityandTime(String name, String specialty, String period) {
+        List<Doctor> doctors = doctorRepository.findByNameContainingIgnoreCaseAndSpecialtyIgnoreCase(name, specialty);
+        return filterDoctorByTime(doctors, period);
+    }
+
+    // 12. filterDoctorByTime
+    public List<Doctor> filterDoctorByTime(List<Doctor> doctors, String period) {
+        return doctors.stream()
+                .filter(d -> isAvailableDuringPeriod(d.getAvailableTimes(), period))
+                .collect(Collectors.toList());
+    }
+
+    // Helper: Check if any slot matches AM/PM
+    private boolean isAvailableDuringPeriod(List<String> slots, String period) {
+        for (String slot : slots) {
+            String[] parts = slot.split("-");
+            if (parts.length != 2) {
+                continue;
+            }
+            try {
+                LocalTime start = LocalTime.parse(parts[0].trim());
+                LocalTime end = LocalTime.parse(parts[1].trim());
+                if ("AM".equalsIgnoreCase(period) && start.isBefore(LocalTime.NOON)) {
+                    return true;
+                }
+                if ("PM".equalsIgnoreCase(period) && end.isAfter(LocalTime.NOON)) {
+                    return true;
+                }
+            } catch (DateTimeParseException ignored) {
+            }
+        }
+        return false;
+    }
+
+    // 13. filterDoctorByNameAndTime
+    public List<Doctor> filterDoctorByNameAndTime(String name, String period) {
+        List<Doctor> doctors = doctorRepository.findByNameLike(name);
+        return filterDoctorByTime(doctors, period);
+    }
+
+    // 14. filterDoctorByNameAndSpecility
+    public List<Doctor> filterDoctorByNameAndSpecility(String name, String specialty) {
+        return doctorRepository.findByNameContainingIgnoreCaseAndSpecialtyIgnoreCase(name, specialty);
+    }
+
+    // 15. filterDoctorByTimeAndSpecility
+    public List<Doctor> filterDoctorByTimeAndSpecility(String specialty, String period) {
+        List<Doctor> doctors = doctorRepository.findBySpecialtyIgnoreCase(specialty);
+        return filterDoctorByTime(doctors, period);
+    }
+
+    // 16. filterDoctorBySpecility
+    public List<Doctor> filterDoctorBySpecility(String specialty) {
+        return doctorRepository.findBySpecialtyIgnoreCase(specialty);
+    }
+
+    // 17. filterDoctorsByTime
+    public List<Doctor> filterDoctorsByTime(String period) {
+        List<Doctor> doctors = doctorRepository.findAll();
+        return filterDoctorByTime(doctors, period);
+    }
+
+    // getDoctorDetails
+    public Doctor getDoctorDetails(String token) {
+        try {
+            String email = tokenService.extractEmail(token);
+            Doctor doctor = doctorRepository.findByEmail(email);
+            if (doctor == null) {
+                throw new RuntimeException("Doctor not found for email: " + email);
+            } else {
+                return doctor;
+            }
+        } catch (RuntimeException e) {
+            System.err.println("Error retrieving patient details: " + e.getMessage());
+            return null;
+        } catch (Exception e) {
+            System.err.println("Error retrieving patient details: " + e.getMessage());
+            return null;
+        }
+    }
+
+}
+
+// 1. **Add @Service Annotation**:
+//    - This class should be annotated with `@Service` to indicate that it is a service layer class.
+//    - The `@Service` annotation marks this class as a Spring-managed bean for business logic.
+//    - Instruction: Add `@Service` above the class declaration.
+// 2. **Constructor Injection for Dependencies**:
+//    - The `DoctorService` class depends on `DoctorRepository`, `AppointmentRepository`, and `TokenService`.
+//    - These dependencies should be injected via the constructor for proper dependency management.
+//    - Instruction: Ensure constructor injection is used for injecting dependencies into the service.
+// 3. **Add @Transactional Annotation for Methods that Modify or Fetch Database Data**:
+//    - Methods like `getDoctorAvailability`, `getDoctors`, `findDoctorByName`, `filterDoctorsBy*` should be annotated with `@Transactional`.
+//    - The `@Transactional` annotation ensures that database operations are consistent and wrapped in a single transaction.
+//    - Instruction: Add the `@Transactional` annotation above the methods that perform database operations or queries.
+// 4. **getDoctorAvailability Method**:
+//    - Retrieves the available time slots for a specific doctor on a particular date and filters out already booked slots.
+//    - The method fetches all appointments for the doctor on the given date and calculates the availability by comparing against booked slots.
+//    - Instruction: Ensure that the time slots are properly formatted and the available slots are correctly filtered.
+//public List<String> getDoctorAvailability(Long doctorId, LocalDate date) {
+/*      Optional<Doctor> doctorOpt = doctorRepository.findById(doctorId);
         if (doctorOpt.isEmpty()) {
             return Collections.emptyList();
         }
@@ -78,167 +307,7 @@ public class DoctorService {
         }
 
         return available;
-    }
-
-    // 5. saveDoctor
-    public int saveDoctor(Doctor doctor) {
-        try {
-            if (doctorRepository.findByEmail(doctor.getEmail()) == null) {
-                return -1;
-            }
-            doctorRepository.save(doctor);
-            return 1;
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
-     // 6. updateDoctor
-    public int updateDoctor(Long doctorId, Doctor updatedDoctor) {
-        Optional<Doctor> existingOpt = doctorRepository.findById(doctorId);
-        if (existingOpt.isEmpty()) return -1;
-
-        Doctor existing = existingOpt.get();
-        existing.setName(updatedDoctor.getName());
-        existing.setEmail(updatedDoctor.getEmail());
-        existing.setPassword(updatedDoctor.getPassword());
-        existing.setSpecialty(updatedDoctor.getSpecialty());
-        existing.setAvailableTimes(updatedDoctor.getAvailableTimes());
-
-        doctorRepository.save(existing);
-        return 1;
-    }
-
-     // 7. getDoctors
-    @Transactional(readOnly = true)
-    public List<Doctor> getDoctors() {
-        List<Doctor> doctors = doctorRepository.findAll();
-        doctors.forEach(d -> d.getAvailableTimes().size()); // Force eager loading
-        return doctors;
-    }
-
-    // 8. deleteDoctor
-    @Transactional
-    public int deleteDoctor(Long doctorId) {
-        Optional<Doctor> doctorOpt = doctorRepository.findById(doctorId);
-        if (doctorOpt.isEmpty()) return -1;
-
-        appointmentRepository.deleteAllByDoctorId(doctorId);
-        doctorRepository.deleteById(doctorId);
-        return 1;
-    }
-
-    // 9. validateDoctor
-    public String validateDoctor(String email, String password) {
-        Optional<Doctor> doctorOpt = Optional.of(doctorRepository.findByEmail(email));
-        if (doctorOpt.isEmpty()) return "Doctor not found.";
-
-        Doctor doctor = doctorOpt.get();
-        if (!doctor.getPassword().equals(password)) return "Invalid password.";
-
-        return tokenService.generateToken(doctor.getId(), doctor.getEmail());
-    }
-
-     // 10. findDoctorByName
-    @Transactional(readOnly = true)
-    public List<Doctor> findDoctorByName(String name) {
-        List<Doctor> doctors = doctorRepository.findByNameLike(name);
-        doctors.forEach(d -> d.getAvailableTimes().size());
-        return doctors;
-    }
-
-    // 11. filterDoctorsByNameSpecilityandTime
-    public List<Doctor> filterDoctorsByNameSpecilityandTime(String name, String specialty, String period) {
-        List<Doctor> doctors = doctorRepository.findByNameContainingIgnoreCaseAndSpecialtyIgnoreCase(name, specialty);
-        return filterDoctorByTime(doctors, period);
-    }
-
-    // 12. filterDoctorByTime
-    public List<Doctor> filterDoctorByTime(List<Doctor> doctors, String period) {
-        return doctors.stream()
-                .filter(d -> isAvailableDuringPeriod(d.getAvailableTimes(), period))
-                .collect(Collectors.toList());
-    }
-
-     // Helper: Check if any slot matches AM/PM
-    private boolean isAvailableDuringPeriod(List<String> slots, String period) {
-        for (String slot : slots) {
-            String[] parts = slot.split("-");
-            if (parts.length != 2) continue;
-            try {
-                LocalTime start = LocalTime.parse(parts[0].trim());
-                LocalTime end = LocalTime.parse(parts[1].trim());
-                if ("AM".equalsIgnoreCase(period) && start.isBefore(LocalTime.NOON)) return true;
-                if ("PM".equalsIgnoreCase(period) && end.isAfter(LocalTime.NOON)) return true;
-            } catch (DateTimeParseException ignored) {}
-        }
-        return false;
-    }
-
-    // 13. filterDoctorByNameAndTime
-    public List<Doctor> filterDoctorByNameAndTime(String name, String period) {
-        List<Doctor> doctors = doctorRepository.findByNameLike(name);
-        return filterDoctorByTime(doctors, period);
-    }
-
-    // 14. filterDoctorByNameAndSpecility
-    public List<Doctor> filterDoctorByNameAndSpecility(String name, String specialty) {
-        return doctorRepository.findByNameContainingIgnoreCaseAndSpecialtyIgnoreCase(name, specialty);
-    }
-
-    // 15. filterDoctorByTimeAndSpecility
-    public List<Doctor> filterDoctorByTimeAndSpecility(String specialty, String period) {
-        List<Doctor> doctors = doctorRepository.findBySpecialtyIgnoreCase(specialty);
-        return filterDoctorByTime(doctors, period);
-    }
-
-    // 16. filterDoctorBySpecility
-    public List<Doctor> filterDoctorBySpecility(String specialty) {
-        return doctorRepository.findBySpecialtyIgnoreCase(specialty);
-    }
-
-    // 17. filterDoctorsByTime
-    public List<Doctor> filterDoctorsByTime(String period) {
-        List<Doctor> doctors = doctorRepository.findAll();
-        return filterDoctorByTime(doctors, period);
-    }
-
-    // getDoctorDetails
-    public Doctor getDoctorDetails(String token) {
-        try {
-            String email = tokenService.extractEmail(token);
-            Doctor doctor = doctorRepository.findByEmail(email);
-            if (doctor == null)
-                throw new RuntimeException("Doctor not found for email: " + email);
-            else
-                return doctor;
-        } catch (RuntimeException e) {
-            System.err.println("Error retrieving patient details: " + e.getMessage());
-            return null;
-        } catch (Exception e) {
-            System.err.println("Error retrieving patient details: " + e.getMessage());
-            return null;
-        }
-    }
-
-}
-
-// 1. **Add @Service Annotation**:
-//    - This class should be annotated with `@Service` to indicate that it is a service layer class.
-//    - The `@Service` annotation marks this class as a Spring-managed bean for business logic.
-//    - Instruction: Add `@Service` above the class declaration.
-// 2. **Constructor Injection for Dependencies**:
-//    - The `DoctorService` class depends on `DoctorRepository`, `AppointmentRepository`, and `TokenService`.
-//    - These dependencies should be injected via the constructor for proper dependency management.
-//    - Instruction: Ensure constructor injection is used for injecting dependencies into the service.
-// 3. **Add @Transactional Annotation for Methods that Modify or Fetch Database Data**:
-//    - Methods like `getDoctorAvailability`, `getDoctors`, `findDoctorByName`, `filterDoctorsBy*` should be annotated with `@Transactional`.
-//    - The `@Transactional` annotation ensures that database operations are consistent and wrapped in a single transaction.
-//    - Instruction: Add the `@Transactional` annotation above the methods that perform database operations or queries.
-// 4. **getDoctorAvailability Method**:
-//    - Retrieves the available time slots for a specific doctor on a particular date and filters out already booked slots.
-//    - The method fetches all appointments for the doctor on the given date and calculates the availability by comparing against booked slots.
-//    - Instruction: Ensure that the time slots are properly formatted and the available slots are correctly filtered.
+    } */
 // 5. **saveDoctor Method**:
 //    - Used to save a new doctor record in the database after checking if a doctor with the same email already exists.
 //    - If a doctor with the same email is found, it returns `-1` to indicate conflict; `1` for success, and `0` for internal errors.
