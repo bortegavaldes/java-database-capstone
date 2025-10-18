@@ -46,40 +46,47 @@ public class DoctorService {
             return Collections.emptyList();
         }
 
-        // 1. Fetch all booked appointments and create a Set of booked hours
+        // 1. Fetch all booked appointments for the day.
         List<Appointment> bookedAppointments = appointmentRepository
                 .findByDoctorIdAndAppointmentTimeBetween(doctorId, date.atStartOfDay(), date.atTime(LocalTime.MAX));
 
+        // 2. Extract the hour component of all booked appointments into an efficient Set.
+        // This allows for O(1) average time complexity lookups later.
         Set<LocalTime> bookedHours = bookedAppointments.stream()
                 .map(Appointment::getAppointmentTime)
                 .map(LocalDateTime::toLocalTime)
-                // Truncate to the hour (assuming one-hour appointment slots)
+                // Truncate the time (e.g., 09:30 -> 09:00) to match the one-hour slot granularity
                 .map(time -> time.truncatedTo(ChronoUnit.HOURS))
                 .collect(Collectors.toSet());
 
-        // 2. Streamline iteration: Generate all possible one-hour slots from availableSlots
+        // 3. Process the doctor's general availability strings (e.g., "09:00-11:00")
+        // and flatten them into a single list of individual one-hour LocalTime blocks.
         List<LocalTime> allPossibleSlots = availableSlots.stream()
+                // flatMap transforms each slot string into a stream of LocalTime blocks,
+                // then flattens all these individual streams into one continuous stream.
                 .flatMap(slot -> {
                     String[] parts = slot.split("-");
                     if (parts.length != 2) {
-                        return Stream.empty(); // Skip invalid format
+                        return Stream.empty(); // Ignore invalid format strings
                     }
                     try {
                         LocalTime start = LocalTime.parse(parts[0].trim());
                         LocalTime end = LocalTime.parse(parts[1].trim());
 
-                        // Generate a sequential stream of times starting from 'start',
-                        // advancing by 1 hour, until 'end' (exclusive, as the loop condition implies)
+                        // Stream.iterate generates a sequence of times starting at 'start',
+                        // advancing by 1 hour, and stops after generating 'limit' number of elements.
+                        long hoursBetween = ChronoUnit.HOURS.between(start, end);
                         return Stream.iterate(start, current -> current.plusHours(1))
-                                .limit(ChronoUnit.HOURS.between(start, end));
+                                .limit(hoursBetween);
                     } catch (DateTimeParseException ignored) {
-                        return Stream.empty(); // Skip unparsable slots
+                        return Stream.empty(); // Ignore unparsable time strings
                     }
                 })
-                // Convert to a List of LocalTime objects
+                // Collect all generated LocalTime objects into a list.
                 .collect(Collectors.toList());
 
-        // 3. Filter the generated slots against bookedHours in a single pass
+        // 4. Filter the generated slots: Keep only the ones that are NOT in the bookedHours Set.
+        // Map the remaining LocalTime objects back to String format (e.g., "09:00").
         List<String> available = allPossibleSlots.stream()
                 .filter(slotTime -> !bookedHours.contains(slotTime))
                 .map(LocalTime::toString)
