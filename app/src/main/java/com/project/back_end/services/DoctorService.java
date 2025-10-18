@@ -148,7 +148,7 @@ public class DoctorService {
     }
 
     // 9. validateDoctor
-    public String validateDoctor(String email, String password) {
+    public String validateDoctorLogin(String email, String password) {
         Optional<Doctor> doctorOpt = Optional.of(doctorRepository.findByEmail(email));
         if (doctorOpt.isEmpty()) {
             return "Doctor not found.";
@@ -270,7 +270,7 @@ public class DoctorService {
 //    - Retrieves the available time slots for a specific doctor on a particular date and filters out already booked slots.
 //    - The method fetches all appointments for the doctor on the given date and calculates the availability by comparing against booked slots.
 //    - Instruction: Ensure that the time slots are properly formatted and the available slots are correctly filtered.
-//public List<String> getDoctorAvailability(Long doctorId, LocalDate date) {
+//public List<String> oldImplgetDoctorAvailability(Long doctorId, LocalDate date) {
 /*      Optional<Doctor> doctorOpt = doctorRepository.findById(doctorId);
         if (doctorOpt.isEmpty()) {
             return Collections.emptyList();

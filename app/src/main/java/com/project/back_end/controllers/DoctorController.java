@@ -147,7 +147,7 @@ public class DoctorController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> doctorLogin(@RequestBody Login loginDto) {
         // Use the validateDoctor method from DoctorService
-        String serviceResult = doctorService.validateDoctor(loginDto.getEmail(), loginDto.getPassword());
+        String serviceResult = doctorService.validateDoctorLogin(loginDto.getEmail(), loginDto.getPassword());
         
         if (!serviceResult.contains("not found") && !serviceResult.contains("Invalid password")) {
             // Assume the result is the JWT token (success)
